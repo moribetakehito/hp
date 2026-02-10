@@ -1,8 +1,7 @@
-body{
-  margin:200px;
+body {
+  margin: 5vw; /* 画面幅の5%の余白 */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background:#fff;
-  color:#111;
-  line-height:1.7;
-
+  background: #fff;
+  color: #111;
+  line-height: 1.7;
 }
