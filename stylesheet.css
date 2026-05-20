@@ -1,8 +1,123 @@
-body {
-  margin: 5vw; /* 画面幅の5%の余白 */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+html {
   background: #fff;
+}
+
+body {
+  margin: 22px 26px 80px;
+  font-family: "Courier New", "Yu Gothic", "YuGothic", "Hiragino Sans", monospace;
+  font-size: 13px;
+  line-height: 1.58;
+  letter-spacing: 0;
   color: #111;
-  line-height: 1.7;
-  letter-spacing:0.04em;
+  background: #fff;
+}
+
+body, a {
+  font-weight: 400;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+  margin-bottom: 34px;
+}
+
+.site-nav a::before,
+.project-list a::before,
+.external-list a::before {
+  content: "+ ";
+}
+
+.site-nav a::after,
+.project-list a::after,
+.external-list a::after {
+  content: " +";
+}
+
+.site-title {
+  margin: 0 0 22px;
+}
+
+.statement {
+  margin: 0 0 46px;
+  max-width: 560px;
+}
+
+.page {
+  max-width: 980px;
+}
+
+.page-narrow {
+  max-width: 620px;
+}
+
+.project-list,
+.external-list {
+  margin-top: 34px;
+}
+
+.project-list a,
+.external-list a {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.portrait {
+  display: block;
+  width: min(300px, 100%);
+  margin: 0 0 30px;
+}
+
+.image-stack {
+  max-width: 960px;
+  margin-top: 40px;
+}
+
+.image-stack img {
+  display: block;
+  width: 100%;
+  margin: 0 0 64px;
+}
+
+.work-meta {
+  margin: 0 0 42px;
+  max-width: 720px;
+}
+
+@media (max-width: 640px) {
+  body {
+    margin: 18px 18px 64px;
+    font-size: 12px;
+  }
+
+  .site-nav {
+    display: block;
+    margin-bottom: 30px;
+  }
+
+  .site-nav a {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .image-stack img {
+    margin-bottom: 38px;
+  }
 }
