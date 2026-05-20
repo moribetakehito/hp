@@ -24,7 +24,7 @@ collections:
             allow_reorder: true
             collapsed: true
             fields:
-              - { label: "ID", name: "id", widget: "string", hint: "URLや管理に使う半角ID。例: 20260601_new_work" }
+              - { label: "ID", name: "id", widget: "string", hint: "作品URLに使う半角ID。例: 20260601_new_work → /works/20260601_new_work/。公開後はなるべく変えないでください。" }
               - { label: "Number", name: "number", widget: "string", hint: "例: w/002" }
               - { label: "Date", name: "date", widget: "string", required: false, hint: "例: 20260601" }
               - { label: "Title", name: "title", widget: "string" }

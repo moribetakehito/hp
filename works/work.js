@@ -45,7 +45,13 @@ function appendDescription(element, text) {
 }
 
 function workUrl(work) {
-  return work.url || `/works/work/?id=${encodeURIComponent(work.id)}`;
+  return work.url || `/works/${encodeURIComponent(work.id)}/`;
+}
+
+function workIdFromPath() {
+  const match = window.location.pathname.match(/^\/works\/([^/]+)\/?$/);
+  if (!match || match[1] === 'work') return '';
+  return decodeURIComponent(match[1]);
 }
 
 function imageUrl(src, work) {
@@ -69,7 +75,7 @@ function renderWorksList(data) {
 }
 
 function selectedWorkId(page) {
-  return page.dataset.workId || new URLSearchParams(window.location.search).get('id');
+  return page.dataset.workId || new URLSearchParams(window.location.search).get('id') || workIdFromPath();
 }
 
 function renderWorkDetail(data) {

@@ -1,0 +1,2 @@
+/works/:id/  /works/work/index.html  200
+/works/:id   /works/work/index.html  200
