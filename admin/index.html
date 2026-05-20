@@ -8,5 +8,35 @@
 <body>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    CMS.registerEventListener({
+      name: 'preSave',
+      handler: async ({ entry }) => {
+        const data = entry.get('data');
+        const works = data && data.get ? data.get('works') : null;
+        if (!works || typeof works.size !== 'number') return data;
+
+        try {
+          const response = await fetch(`/works/data.json?confirm=${Date.now()}`, { cache: 'no-store' });
+          if (!response.ok) return data;
+
+          const current = await response.json();
+          const currentCount = Array.isArray(current.works) ? current.works.length : works.size;
+          if (works.size < currentCount) {
+            const ok = window.confirm(
+              `Worksが ${currentCount} 件から ${works.size} 件に減っています。\n` +
+              '作品を削除した状態で保存しますか？\n\n' +
+              '間違えて消した場合は「キャンセル」を押してください。'
+            );
+            if (!ok) throw new Error('作品削除を含む保存をキャンセルしました。');
+          }
+        } catch (error) {
+          if (error && error.message && error.message.includes('キャンセル')) throw error;
+        }
+
+        return data;
+      },
+    });
+  </script>
 </body>
 </html>
