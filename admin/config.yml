@@ -18,6 +18,11 @@ collections:
             name: "works"
             widget: "list"
             summary: "{{fields.number}} {{fields.date}} {{fields.title}}"
+            hint: "上にある作品ほど /works/ の上に表示されます。新しく追加した作品は自動で上に入ります。古い作品を更新しても順番は変わりません。必要なときは手動で並び替えできます。"
+            label_singular: "work"
+            add_to_top: true
+            allow_reorder: true
+            collapsed: true
             fields:
               - { label: "ID", name: "id", widget: "string", hint: "URLや管理に使う半角ID。例: 20260601_new_work" }
               - { label: "Number", name: "number", widget: "string", hint: "例: w/002" }
