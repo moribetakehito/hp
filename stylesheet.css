@@ -50,18 +50,6 @@ img {
   color: #111;
 }
 
-.site-nav a::before,
-.project-list a::before,
-.external-list a::before {
-  content: "+ ";
-}
-
-.site-nav a::after,
-.project-list a::after,
-.external-list a::after {
-  content: " +";
-}
-
 .site-title {
   margin: 0 0 22px;
 }
