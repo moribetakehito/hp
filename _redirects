@@ -1,2 +1,4 @@
+/portfolio/  /portfolio/index.html  200
+/about/      /about/index.html      200
 /works/:id/  /works/work/index.html  200
 /works/:id   /works/work/index.html  200
