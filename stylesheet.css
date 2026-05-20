@@ -16,8 +16,9 @@ body, a {
   font-weight: 400;
 }
 
-a {
-  color: inherit;
+a,
+a:visited {
+  color: #008080;
   text-decoration: none;
 }
 
@@ -35,8 +36,18 @@ img {
 .site-nav {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0 18px;
-  margin-bottom: 34px;
+  margin-bottom: 42px;
+  text-align: center;
+}
+
+.site-nav a,
+.site-nav a:visited,
+.site-nav a:hover,
+.site-nav a:focus,
+.site-nav a:active {
+  color: #111;
 }
 
 .site-nav a::before,
@@ -109,12 +120,12 @@ img {
 
   .site-nav {
     display: block;
-    margin-bottom: 30px;
+    margin-bottom: 34px;
   }
 
   .site-nav a {
-    display: block;
-    margin-bottom: 4px;
+    display: inline-block;
+    margin: 0 5px 4px;
   }
 
   .image-stack img {
