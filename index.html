@@ -28,5 +28,11 @@
     <a href="/about/">about</a>
   </div>
 </main>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script>
+  if (window.location.hash && window.location.hash.includes('_token=')) {
+    window.location.replace('/admin/' + window.location.hash);
+  }
+</script>
 </body>
 </html>
