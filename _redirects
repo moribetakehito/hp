@@ -1,4 +1,6 @@
-/portfolio/  /portfolio/index.html  200
-/about/      /about/index.html      200
+/portfolio   /portfolio/            301!
+/portfolio/  /portfolio/index.html  200!
+/about       /about/                301!
+/about/      /about/index.html      200!
 /works/:id/  /works/work/index.html  200
 /works/:id   /works/work/index.html  200
