@@ -30,7 +30,7 @@ collections:
               - { label: "Title", name: "title", widget: "string" }
               - { label: "Venue", name: "venue", widget: "string", required: false }
               - { label: "Subtitle", name: "subtitle", widget: "string", required: false }
-              - { label: "Description", name: "description", widget: "text", required: false }
+              - { label: "Description", name: "description", widget: "text", required: false, hint: "文中リンクは [表示する文字](https://example.com) の形で書けます。" }
               - label: "Images"
                 name: "images"
                 widget: "list"
