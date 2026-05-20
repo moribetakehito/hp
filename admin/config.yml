@@ -1,6 +1,5 @@
 backend:
-  name: github
-  repo: moribetakehito/hp
+  name: git-gateway
   branch: main
 
 media_folder: "works/uploads"
