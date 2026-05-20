@@ -22,6 +22,10 @@ a:visited {
   text-decoration: none;
 }
 
+a::before {
+  content: "= ";
+}
+
 a:hover,
 a:focus {
   text-decoration: underline;
