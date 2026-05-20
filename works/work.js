@@ -11,6 +11,39 @@ function appendTextLines(element, lines) {
   });
 }
 
+function appendDescription(element, text) {
+  if (!text) return;
+
+  const lines = text.split(/\r?\n/);
+  lines.forEach((line, lineIndex) => {
+    if (lineIndex > 0) element.appendChild(document.createElement('br'));
+
+    const linkPattern = /\[([^\]]+)\]\((https?:\/\/[^)\s]+|mailto:[^)\s]+|\/[^)\s]+)\)/g;
+    let cursor = 0;
+    let match;
+
+    while ((match = linkPattern.exec(line)) !== null) {
+      if (match.index > cursor) {
+        element.appendChild(document.createTextNode(line.slice(cursor, match.index)));
+      }
+
+      const anchor = document.createElement('a');
+      anchor.href = match[2];
+      anchor.textContent = match[1];
+      if (/^https?:\/\//.test(match[2])) {
+        anchor.target = '_blank';
+        anchor.rel = 'noopener';
+      }
+      element.appendChild(anchor);
+      cursor = match.index + match[0].length;
+    }
+
+    if (cursor < line.length) {
+      element.appendChild(document.createTextNode(line.slice(cursor)));
+    }
+  });
+}
+
 function workUrl(work) {
   return work.url || `/works/work/?id=${encodeURIComponent(work.id)}`;
 }
@@ -55,7 +88,11 @@ function renderWorkDetail(data) {
   const meta = page.querySelector('[data-work-meta]');
   if (meta) {
     meta.innerHTML = '';
-    appendTextLines(meta, [work.number, work.date, work.venue, work.subtitle, work.description]);
+    appendTextLines(meta, [work.number, work.date, work.venue, work.subtitle]);
+    if (work.description) {
+      if (meta.childNodes.length > 0) meta.appendChild(document.createElement('br'));
+      appendDescription(meta, work.description);
+    }
   }
 
   const stack = page.querySelector('[data-work-images]');
