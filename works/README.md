@@ -1,53 +1,32 @@
 # works の更新方法
 
-## 新しい作品を追加する
+## いちばん簡単な方法
 
-1. `works/作品ID/` フォルダを作る
-   - 例: `works/20260601_new_work/`
+1. `https://moribetakehito.com/admin/` を開く
+2. GitHubでログインする
+3. `Site Data` → `Works` を開く
+4. 作品情報を追加・編集する
+5. `Images` に画像をアップロードする
+6. 保存する
 
-2. その中に `images/` フォルダを作って画像をアップロードする
-   - 例: `works/20260601_new_work/images/01.jpg`
-   - 表示したい順番に `01.jpg`, `02.jpg` のように名前をつけると管理しやすいです。
+保存すると `works/data.json` と画像ファイルがGitHubに反映され、`/works/` の一覧にも出ます。
 
-3. `works/_template/index.html` をコピーして、新しい作品フォルダに `index.html` として置く
-   - `data-work-id="ここを作品IDに変える"` を、作品IDに変えます。
-   - 例: `data-work-id="20260601_new_work"`
+## 新しい作品について
 
-4. `works/data.json` に作品情報を追加する
+新しい作品は、作品ごとのHTMLを作らなくても `/works/work/?id=作品ID` で表示できます。
 
 例:
 
-```json
-{
-  "id": "20260601_new_work",
-  "number": "w/002",
-  "date": "20260601",
-  "title": "作品タイトル",
-  "venue": "会場名",
-  "subtitle": "サブタイトル",
-  "description": "説明文",
-  "url": "/works/20260601_new_work/",
-  "images": [
-    "images/01.jpg",
-    "images/02.jpg"
-  ]
-}
+```text
+/works/work/?id=20260601_new_work
 ```
 
-## 画像を追加・並び替えしたいとき
+`ID` は半角英数字・ハイフン・アンダーバーで付けると扱いやすいです。
 
-`works/data.json` の `images` の行を編集します。
+## 画像について
 
-```json
-"images": [
-  "images/01.jpg",
-  "images/02.jpg",
-  "images/03.jpg"
-]
-```
+管理画面からアップロードした画像は `works/uploads/` に入ります。表示順は `Images` の並び順です。
 
-ここに書いた順番で作品ページに表示されます。
+## 既存ページについて
 
-## works一覧を変えたいとき
-
-`works/data.json` の `works` 配列の順番を入れ替えると、`/works/` の表示順も変わります。
+既存の `/works/20260511_cp/` はそのまま残しています。内容は `works/data.json` から読み込まれます。

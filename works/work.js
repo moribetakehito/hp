@@ -11,6 +11,17 @@ function appendTextLines(element, lines) {
   });
 }
 
+function workUrl(work) {
+  return work.url || `/works/work/?id=${encodeURIComponent(work.id)}`;
+}
+
+function imageUrl(src, work) {
+  if (!src) return '';
+  if (/^(https?:)?\/\//.test(src) || src.startsWith('/')) return src;
+  const base = work.assetBase || `/works/${work.id}/`;
+  return `${base.replace(/\/$/, '')}/${src.replace(/^\//, '')}`;
+}
+
 function renderWorksList(data) {
   const list = document.querySelector('[data-works-list]');
   if (!list) return;
@@ -18,20 +29,28 @@ function renderWorksList(data) {
   list.innerHTML = '';
   data.works.forEach((work) => {
     const link = document.createElement('a');
-    link.href = work.url;
+    link.href = workUrl(work);
     link.textContent = `${work.number} ${work.date} ${work.title}`;
     list.appendChild(link);
   });
 }
 
+function selectedWorkId(page) {
+  return page.dataset.workId || new URLSearchParams(window.location.search).get('id');
+}
+
 function renderWorkDetail(data) {
-  const page = document.querySelector('[data-work-id]');
+  const page = document.querySelector('[data-work-detail]');
   if (!page) return;
 
-  const work = data.works.find((item) => item.id === page.dataset.workId);
-  if (!work) return;
+  const id = selectedWorkId(page);
+  const work = data.works.find((item) => item.id === id);
+  if (!work) {
+    page.classList.add('is-missing');
+    return;
+  }
 
-  document.title = `${work.date} - moribe takehito`;
+  document.title = `${work.date || work.title} - moribe takehito`;
 
   const meta = page.querySelector('[data-work-meta]');
   if (meta) {
@@ -44,8 +63,8 @@ function renderWorkDetail(data) {
     stack.innerHTML = '';
     work.images.forEach((src) => {
       const img = document.createElement('img');
-      img.src = src;
-      img.alt = `${work.title}`;
+      img.src = imageUrl(src, work);
+      img.alt = work.title;
       img.loading = 'lazy';
       stack.appendChild(img);
     });

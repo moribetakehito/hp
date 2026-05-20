@@ -1,0 +1,36 @@
+backend:
+  name: github
+  repo: moribetakehito/hp
+  branch: main
+
+media_folder: "works/uploads"
+public_folder: "/works/uploads"
+
+collections:
+  - name: "site_data"
+    label: "Site Data"
+    files:
+      - name: "works"
+        label: "Works"
+        file: "works/data.json"
+        format: "json"
+        fields:
+          - label: "Works"
+            name: "works"
+            widget: "list"
+            summary: "{{fields.number}} {{fields.date}} {{fields.title}}"
+            fields:
+              - { label: "ID", name: "id", widget: "string", hint: "URLや管理に使う半角ID。例: 20260601_new_work" }
+              - { label: "Number", name: "number", widget: "string", hint: "例: w/002" }
+              - { label: "Date", name: "date", widget: "string", required: false, hint: "例: 20260601" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Venue", name: "venue", widget: "string", required: false }
+              - { label: "Subtitle", name: "subtitle", widget: "string", required: false }
+              - { label: "Description", name: "description", widget: "text", required: false }
+              - label: "Images"
+                name: "images"
+                widget: "list"
+                field:
+                  label: "Image"
+                  name: "image"
+                  widget: "image"
