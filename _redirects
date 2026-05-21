@@ -1,2 +1,7 @@
+/portfolio.html  /portfolio/           301
+/about.html      /about/               301
+/works/works.html  /works/             301
+/works/20260511_cp.html  /works/20260511_cp/  301
+/works/20260511_cp/p.html  /works/20260511_cp/  301
 /works/:id/  /works/work/index.html  200
 /works/:id   /works/work/index.html  200
