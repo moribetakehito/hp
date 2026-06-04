@@ -1,6 +1,20 @@
 {
   "works": [
     {
+      "id": "20260529",
+      "number": "002",
+      "date": "20260529",
+      "title": "情景図式と記号場の解体のための試行 2",
+      "subtitle": "",
+      "description": "コンクリート・ポエトリーで梅田スカイビルの図面を描きました。\n梅田スカイビルは原広司が1993年に作りました。\nこのビルはロケットの発射台であり、真ん中に開いている孔は宇宙船が旅立った跡なのです。",
+      "images": [
+        "/works/uploads/umdskybldng_cp-03.png",
+        "/works/uploads/umdskybldng_cp-04.png",
+        "/works/uploads/umdskybldng_cp-01.png",
+        "/works/uploads/umdskybldng_cp-02.png"
+      ]
+    },
+    {
       "id": "20260511",
       "number": "001",
       "date": "20260511",
