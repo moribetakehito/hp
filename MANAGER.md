@@ -1,6 +1,6 @@
 # サイト管理アプリとGitHub Pagesへの移行
 
-このフォルダは `moribetakehito/hp` を取得し、管理アプリとPages向けビルドを追加したものです。現時点の本番配信はNetlifyです。ローカル保存やプレビューだけでは本番は変わりません。
+このフォルダは `moribetakehito/hp` の管理アプリとGitHub Pages向けビルドを含みます。管理はMac上のアプリ、配信はGitHub Pagesで行います。ローカル保存やプレビューだけでは本番は変わりません。Netlifyのサービス終了は、後述のDNS・HTTPS確認後に行います。
 
 ## 起動
 
@@ -56,4 +56,4 @@ node tools/build.mjs
 
 `_site/` だけをGitHub Pagesに公開します。作品ごとのHTMLを生成するため、Netlifyの `_redirects` がなくても既存の `/works/20260529/` などを直接開けます。旧HTMLのURLには静的な転送ページを生成します。
 
-既存の `admin/` は切り替え前のNetlify運用を壊さないためソースには残しています。Pages公開用ファイルには含めません。
+旧 `admin/`、Netlify Identityのスクリプト、Git Gateway設定、Netlify用の `_redirects` は削除しています。作品URLと旧URLの転送はPages向けビルドで生成します。

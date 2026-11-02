@@ -6,4 +6,4 @@
 
 画像は `works/uploads/`、作品情報は `works/data.json` に保存します。既存作品の画像は従来の場所も利用します。説明文は `[文字](https://example.com)` 形式のリンクに対応します。
 
-移行中に旧Netlify管理画面を使った場合も、保存時に日付からIDを設定し、作品番号を除きます。GitHub Pagesへの移行後は自作アプリを使います。
+更新は自作の管理アプリから行います。旧Decap CMS、Netlify Identity、Git Gatewayは使用しません。
