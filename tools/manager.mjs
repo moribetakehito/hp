@@ -5,6 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { ROOT, validate, build } from './build.mjs';
 import { publish, blobHash } from './publish.mjs';
+import { createGitHubAuth } from './auth.mjs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -51,7 +52,7 @@ async function serveFile(res, root, pathname) {
   const output = path.extname(file)==='.html' ? bytes.toString('utf8').replaceAll('href="/"','href="/?site-preview=1"') : bytes;
   res.writeHead(200, {'Content-Type':mime[path.extname(file)] || 'application/octet-stream','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}); res.end(output);
 }
-export function createManager() {
+export function createManager({auth=createGitHubAuth(),openConnection=()=>promisify(execFile)('/usr/bin/open',['-a','Terminal',path.join(ROOT,'Connect GitHub.command')])}={}) {
   return http.createServer(async (req, res) => {
     res.setHeader('X-Frame-Options','SAMEORIGIN');
     res.setHeader('Referrer-Policy','no-referrer');
@@ -84,7 +85,13 @@ export function createManager() {
       busy = true;
       try {
         const input = await body(req);
-        if (route === '/api/upload') {
+        if (route === '/api/auth/status') {
+          send(res,200,await auth.status());
+        } else if (route === '/api/auth/connect') {
+          if (process.platform!=='darwin') throw new Error('ターミナルで gh auth login --web を実行してください。');
+          await openConnection();
+          send(res,200,{ok:true});
+        } else if (route === '/api/upload') {
           const files = [];
           if (!Array.isArray(input.files) || input.files.length > 50) throw new Error('画像は50枚までで追加してください。');
           for (const f of input.files) {
@@ -110,7 +117,8 @@ export function createManager() {
           const source = JSON.parse(await readFile(path.join(ROOT,'works/data.json'),'utf8'));
           if (JSON.stringify(validate(input.data)) !== JSON.stringify(validate(source))) throw new Error('先に「サイト用ファイルに反映」を実行してください。');
           const {expected} = await getData();
-          const result = await publish({token:input.token,data:source,expected});
+          const credential = await auth.getToken();
+          const result = await publish({token:credential,data:source,expected});
           await atomic(path.join(state,'sync.json'),json({sha:result.dataSha}));
           send(res,200,result);
         } else if (route === '/api/apply') {

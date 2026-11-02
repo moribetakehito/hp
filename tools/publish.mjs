@@ -6,12 +6,12 @@ import { ROOT, validate } from './build.mjs';
 const repo = 'moribetakehito/hp';
 export const blobHash = bytes => createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
 export async function publish({ token, data, expected, request = fetch }) {
-  if (typeof token !== 'string' || !token.trim()) throw new Error('GitHubのアクセストークンを入力してください。');
+  if (typeof token !== 'string' || !token.trim()) throw new Error('GitHubへの接続が必要です。ブラウザ認証を完了してください。');
   data = validate(data);
   async function github(endpoint, method='GET', body) {
     const response = await request(`https://api.github.com/repos/${repo}/${endpoint}`, { method, headers: { Authorization:`Bearer ${token.trim()}`, Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json' }, ...(body ? {body:JSON.stringify(body)} : {}), signal:AbortSignal.timeout(60000) });
     if (!response.ok) {
-      if ([401,403].includes(response.status)) throw new Error('GitHubに保存できません。hpリポジトリのContents書き込み権限とトークンの有効期限を確認してください。');
+      if ([401,403].includes(response.status)) throw new Error('GitHubに保存できません。「GitHubに接続」から再認証し、hpリポジトリへの書き込み権限を確認してください。');
       if ([409,422].includes(response.status)) throw new Error('GitHub側で更新が競合しました。再読み込みして変更内容を確認してください。');
       throw new Error(`GitHubへの接続に失敗しました（${response.status}）。再送前にリポジトリの更新履歴を確認してください。`);
     }

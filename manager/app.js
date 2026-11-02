@@ -56,9 +56,21 @@ $('#close-preview').onclick=()=>{$('#preview-panel').hidden=true;};
 async function apply(confirmDelete=false) { await run(async()=>{status('画像とデータを確認して反映しています…');const result=await api('apply',{data,base,confirmDelete});data=result.data;base=structuredClone(result.data);dirty=false;render();status('このMacのサイト用ファイルに反映しました。_siteにGitHub Pages用ファイルも生成しました。公開サイトへの送信はまだ行っていません。');}); }
 $('#apply').onclick=()=>{const deleted=base.works.filter(w=>!data.works.some(n=>n.id===w.id));if(deleted.length){$('#confirm-text').textContent=`次の作品がサイト用データから削除されます。\n\n${deleted.map(w=>w.title).join('\n')}\n\n変更前のデータはMac内にバックアップします。`;$('#confirm-dialog').showModal();}else apply();};
 $('#cancel-delete').onclick=()=>$('#confirm-dialog').close();$('#confirm-delete').onclick=()=>{$('#confirm-dialog').close();apply(true);};
-$('#publish').onclick=()=>{if(dirty){status('先に変更をサイト用ファイルに反映してください。',true);return;}$('#github-token').value='';$('#publish-dialog').showModal();};
-$('#cancel-publish').onclick=()=>{$('#github-token').value='';$('#publish-dialog').close();};
-$('#publish-dialog').addEventListener('cancel',()=>{$('#github-token').value='';});
-$('#confirm-publish').onclick=()=>{const credential=$('#github-token').value;$('#github-token').value='';$('#publish-dialog').close();run(async()=>{status('GitHubの最新状態を確認して送信しています…');const result=await api('publish',{data,token:credential});status(result.unchanged?'GitHubと同じ内容です。送信する変更はありません。':`GitHubに保存しました（${result.sha.slice(0,7)}）。公開処理の完了はGitHub Actionsで確認してください。`);});};
+let connected=false;
+async function checkConnection(){
+  const result=await api('auth/status',{});connected=result.connected;
+  $('#github-connect').textContent=connected?'GitHub接続済み':'GitHubに接続';
+  $('#connection-status').textContent=connected?`${result.login} と接続しています。トークン入力なしで送信できます。`:result.unavailable?'GitHubに接続できませんでした。ネットワークを確認して再度お試しください。':'まだ接続されていません。「接続を始める」から認証してください。';
+  return connected;
+}
+$('#github-connect').onclick=()=>run(async()=>{$('#connect-dialog').showModal();await checkConnection();});
+$('#close-connect').onclick=()=>$('#connect-dialog').close();
+$('#check-connect').onclick=()=>run(checkConnection);
+$('#start-connect').onclick=()=>run(async()=>{await api('auth/connect',{});$('#connection-status').textContent='ターミナルとブラウザで認証を完了してから「接続を確認」を押してください。';});
+$('#publish').onclick=()=>run(async()=>{if(dirty){status('先に変更をサイト用ファイルに反映してください。',true);return;}if(!await checkConnection()){$('#connect-dialog').showModal();return;}$('#publish-dialog').showModal();});
+$('#cancel-publish').onclick=()=>$('#publish-dialog').close();
+$('#confirm-publish').onclick=()=>{$('#publish-dialog').close();run(async()=>{status('GitHubの最新状態を確認して送信しています…');const result=await api('publish',{data});status(result.unchanged?'GitHubと同じ内容です。送信する変更はありません。':`GitHubに保存しました（${result.sha.slice(0,7)}）。公開処理の完了はGitHub Actionsで確認してください。`);});};
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 try{const result=await fetch('/api/data').then(r=>r.json());base=result.source;data=structuredClone(result.draft || result.source);data.works.forEach(w=>{w.id=w.date;delete w.number;delete w.url;});data.works.sort((a,b)=>compareWorkDates(a.date,b.date));render();status(result.draft?'保存済みの下書きを読み込みました。公開サイトへの送信は行っていません。':'GitHubから取得した作品データを読み込みました。作品を選んで編集できます。');}catch(e){status('データを読み込めませんでした。管理アプリを再起動してください。',true);}
+
+checkConnection().catch(()=>{});

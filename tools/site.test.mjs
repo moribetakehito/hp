@@ -8,6 +8,7 @@ import { build, validate } from './build.mjs';
 import { createManager } from './manager.mjs';
 import { publish } from './publish.mjs';
 import { nextWorkDate } from '../manager/date.js';
+import { createGitHubAuth, authEnvironment } from './auth.mjs';
 
 const sample = () => ({ works: [{ id:'20260529',date:'20260529',title:'作品 <&>',images:['/works/uploads/image.png'] }] });
 test('duplicate dates, invalid calendar dates and image path traversal cannot be saved',()=>{
@@ -88,4 +89,19 @@ test('GitHub publication checks remote version before writes and never force-pus
   const tree=JSON.parse(calls.find(c=>c.endpoint==='git/trees').body);
   assert.equal(tree.base_tree,'old-tree');assert.deepEqual(tree.tree.map(n=>n.path),['works/data.json']);
   assert.deepEqual(JSON.parse(calls.at(-1).body),{sha:'new-commit',force:false});
+});
+test('browser-auth status never returns credentials; CLI errors are sanitized',async()=>{
+  const secret='test-only-oauth-credential';
+  const calls=[];
+  const auth=createGitHubAuth({locate:async()=>'/test/gh',run:async(file,args,options)=>{calls.push({file,args,options});return {stdout:secret+'\n'};},request:async(url,options)=>{assert.equal(url,'https://api.github.com/user');assert.equal(options.headers.Authorization,`Bearer ${secret}`);return {ok:true,json:async()=>({login:'moribetakehito'})};}});
+  assert.deepEqual(await auth.status(),{connected:true,login:'moribetakehito'});
+  assert.equal(JSON.stringify(await auth.status()).includes(secret),false);
+  assert.equal(calls[0].args.includes(secret),false);
+  assert.ok(calls[0].args.includes('moribetakehito'));
+  const failing=createGitHubAuth({locate:async()=>'/test/gh',run:async()=>{throw new Error(secret);}});
+  await assert.rejects(failing.getToken(),error=>!error.message.includes(secret)&&error.message.includes('接続'));
+  assert.deepEqual(await failing.status(),{connected:false});
+});
+test('inherited environment tokens cannot silently replace browser authentication',()=>{
+  for(const name of ['GH_TOKEN','GITHUB_TOKEN','GH_ENTERPRISE_TOKEN','GITHUB_ENTERPRISE_TOKEN','GH_HOST'])assert.equal(authEnvironment()[name],undefined);
 });
