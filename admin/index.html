@@ -8,13 +8,23 @@
 <body>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  <script>
+  <script type="module">
+    import { parseWorkDate, compareWorkDates } from '/manager/date.js';
     CMS.registerEventListener({
       name: 'preSave',
       handler: async ({ entry }) => {
-        const data = entry.get('data');
+        let data = entry.get('data');
         const works = data && data.get ? data.get('works') : null;
         if (!works || typeof works.size !== 'number') return data;
+        const dates = new Set();
+        const normalized = works.map(work => {
+          const day = work.get('date');
+          parseWorkDate(day);
+          if (dates.has(day)) throw new Error(`日付「${day}」が重複しています。`);
+          dates.add(day);
+          return work.set('id',day).delete('number').delete('url');
+        }).sort((a,b) => compareWorkDates(a.get('date'),b.get('date')));
+        data = data.set('works',normalized);
 
         try {
           const response = await fetch(`/works/data.json?confirm=${Date.now()}`, { cache: 'no-store' });

@@ -1,0 +1,11 @@
+{
+  "name": "moribetakehito-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "manage": "node tools/manager.mjs",
+    "test": "node --test tools/site.test.mjs"
+  },
+  "engines": { "node": ">=22" }
+}

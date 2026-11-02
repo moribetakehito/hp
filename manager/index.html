@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="manager-token" content="__TOKEN__"><title>moribe takehito — Site Manager</title><link rel="stylesheet" href="/style.css"></head>
+<body>
+<header><div class="brand">m<span>/</span> <div>moribe takehito<small>SITE MANAGER</small></div></div><div class="header-end"><span class="local-dot"></span><span>ローカルで編集中</span><a href="https://moribetakehito.com" target="_blank" rel="noopener">公開サイト ↗</a></div></header>
+<div class="workspace">
+<aside><div class="section-label">CONTENT</div><h1>Works <span id="count">0</span></h1><p class="aside-note">作品を選んで編集します。<br>日付の新しい順に並びます。</p><button id="add" class="add">＋ 作品を追加</button><nav id="works" aria-label="作品一覧"></nav><div class="aside-footer">moribetakehito.com<br><span>GitHub Pagesへの移行準備</span></div></aside>
+<main>
+<div class="toolbar"><div><span class="section-label">WORK EDITOR</span><h2 id="editor-heading">作品を編集</h2></div><div class="toolbar-actions"><button id="draft">下書きを保存</button><button id="preview">プレビュー</button><button id="apply">サイト用ファイルに反映</button><button id="publish" class="primary">GitHubへ送信</button></div></div>
+<div id="status" role="status" aria-live="polite">読み込み中…</div>
+<div class="editor-layout"><section id="editor" aria-label="作品編集"></section><section id="preview-panel" hidden><div class="preview-heading"><span>PREVIEW</span><button id="close-preview" aria-label="プレビューを閉じる">閉じる</button></div><iframe id="preview-frame" title="作品ページのプレビュー"></iframe></section></div>
+<footer>「反映」はこのMacのファイルを更新します。公開サイトはGitHubに送信するまで変わりません。</footer>
+</main></div><dialog id="confirm-dialog"><h2>削除を含む変更の反映</h2><p id="confirm-text"></p><div class="dialog-actions"><button id="cancel-delete">キャンセル</button><button id="confirm-delete" class="danger">確認して反映</button></div></dialog>
+<dialog id="publish-dialog"><h2>GitHubへ変更を送信</h2><p>moribetakehito/hp の main ブランチに作品データと追加画像を保存します。接続中の公開サービスが自動で更新を始める場合があります。</p><label for="github-token">GitHubアクセストークン</label><input id="github-token" type="password" autocomplete="off" placeholder="hpのContents書き込み権限を持つトークン"><p class="hint">トークンはこの操作にだけ使い、ファイルやブラウザには保存しません。</p><div class="dialog-actions"><button id="cancel-publish">キャンセル</button><button id="confirm-publish" class="primary">確認して送信</button></div></dialog><script type="module" src="/app.js"></script></body></html>
