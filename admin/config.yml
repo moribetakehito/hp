@@ -17,16 +17,14 @@ collections:
           - label: "Works"
             name: "works"
             widget: "list"
-            summary: "{{fields.number}} {{fields.date}} {{fields.title}}"
-            hint: "上にある作品ほど /works/ の上に表示されます。新しく追加した作品は自動で上に入ります。古い作品を更新しても順番は変わりません。必要なときは手動で並び替えできます。"
+            summary: "{{fields.date}} {{fields.title}}"
+            hint: "日付を作品IDとして使います。保存すると日付の新しい順に並びます。1日につき1作品を登録できます。"
             label_singular: "work"
             add_to_top: true
-            allow_reorder: true
+            allow_reorder: false
             collapsed: true
             fields:
-              - { label: "ID", name: "id", widget: "string", hint: "作品URLに使う半角ID。例: 20260601_new_work → /works/20260601_new_work/。公開後はなるべく変えないでください。" }
-              - { label: "Number", name: "number", widget: "string", hint: "例: w/002" }
-              - { label: "Date", name: "date", widget: "string", required: false, hint: "例: 20260601" }
+              - { label: "日付", name: "date", widget: "string", pattern: ['^[0-9]{8}$', 'YYYYMMDD形式の8桁で入力してください。'], hint: "例: 20260601。作品IDとURLに使います。公開後に日付を変えるとURLも変わります。" }
               - { label: "Title", name: "title", widget: "string" }
               - { label: "Venue", name: "venue", widget: "string", required: false }
               - { label: "Subtitle", name: "subtitle", widget: "string", required: false }

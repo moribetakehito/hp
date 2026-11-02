@@ -69,7 +69,7 @@ function renderWorksList(data) {
   data.works.forEach((work) => {
     const link = document.createElement('a');
     link.href = workUrl(work);
-    link.textContent = `${work.number} ${work.date} ${work.title}`;
+    link.textContent = `${work.date} ${work.title}`;
     list.appendChild(link);
   });
 }
@@ -94,7 +94,7 @@ function renderWorkDetail(data) {
   const meta = page.querySelector('[data-work-meta]');
   if (meta) {
     meta.innerHTML = '';
-    appendTextLines(meta, [work.number, work.date, work.venue, work.subtitle]);
+    appendTextLines(meta, [work.date, work.venue, work.subtitle]);
     if (work.description) {
       if (meta.childNodes.length > 0) meta.appendChild(document.createElement('br'));
       appendDescription(meta, work.description);
