@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir, cp, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseWorkDate, compareWorkDates } from '../manager/date.js';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export function validate(data) {
@@ -8,10 +9,8 @@ export function validate(data) {
   const ids = new Set();
   return { works: data.works.map((w) => {
     if (!w || typeof w !== 'object') throw new Error('作品の形式が正しくありません。');
-    if (typeof w.date !== 'string' || !/^\d{8}$/.test(w.date)) throw new Error('日付はYYYYMMDD形式の8桁で入力してください。');
-    const date = new Date(`${w.date.slice(0,4)}-${w.date.slice(4,6)}-${w.date.slice(6,8)}T00:00:00Z`);
-    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0,10).replaceAll('-','') !== w.date) throw new Error(`日付「${w.date}」は存在しません。`);
-    if (ids.has(w.date)) throw new Error(`日付「${w.date}」の作品が重複しています。1日につき1作品を登録できます。`);
+    parseWorkDate(w.date);
+    if (ids.has(w.date)) throw new Error(`「${w.date}」の作品が重複しています。同じ日付には_1、_2のように枝番を付けてください。`);
     ids.add(w.date);
     const result = { id: w.date, date: w.date };
     for (const key of ['title', 'venue', 'subtitle', 'description']) {
@@ -27,7 +26,7 @@ export function validate(data) {
       result[key] = w[key];
     }
     return result;
-  }).sort((a,b) => b.date.localeCompare(a.date)) };
+  }).sort((a,b) => compareWorkDates(a.date,b.date)) };
 }
 const escape = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
 export async function build({ root = ROOT, out = path.join(root, '_site'), data, assetRoot = root } = {}) {

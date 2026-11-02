@@ -18,13 +18,13 @@ collections:
             name: "works"
             widget: "list"
             summary: "{{fields.date}} {{fields.title}}"
-            hint: "日付を作品IDとして使います。保存すると日付の新しい順に並びます。1日につき1作品を登録できます。"
+            hint: "日付を作品IDとして使います。保存すると日付の新しい順に並びます。同じ日付には_1、_2のように枝番を付けられます。"
             label_singular: "work"
             add_to_top: true
             allow_reorder: false
             collapsed: true
             fields:
-              - { label: "日付", name: "date", widget: "string", pattern: ['^[0-9]{8}$', 'YYYYMMDD形式の8桁で入力してください。'], hint: "例: 20260601。作品IDとURLに使います。公開後に日付を変えるとURLも変わります。" }
+              - { label: "日付・枝番", name: "date", widget: "string", pattern: ['^[0-9]{8}(_[1-9][0-9]{0,5})?$', 'YYYYMMDDまたはYYYYMMDD_1の形式で入力してください。'], hint: "例: 20260601、20260601_1。作品IDとURLに使います。公開後に日付を変えるとURLも変わります。" }
               - { label: "Title", name: "title", widget: "string" }
               - { label: "Venue", name: "venue", widget: "string", required: false }
               - { label: "Subtitle", name: "subtitle", widget: "string", required: false }

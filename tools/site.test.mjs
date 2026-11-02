@@ -7,14 +7,25 @@ import http from 'node:http';
 import { build, validate } from './build.mjs';
 import { createManager } from './manager.mjs';
 import { publish } from './publish.mjs';
+import { nextWorkDate } from '../manager/date.js';
 
 const sample = () => ({ works: [{ id:'20260529',date:'20260529',title:'作品 <&>',images:['/works/uploads/image.png'] }] });
 test('duplicate dates, invalid calendar dates and image path traversal cannot be saved',()=>{
-  for (const date of ['../about','20260230','20261301','2026011','']) {
+  for (const date of ['../about','20260230','20260230_1','20261301','2026011','20260529_0','20260529_01','20260529_','20260529_-1','']) {
     const data=sample();data.works[0].date=date;assert.throws(()=>validate(data));
   }
   const duplicate=sample();duplicate.works.push({...duplicate.works[0]});assert.throws(()=>validate(duplicate));
   const malicious=sample();malicious.works[0].images=['/works/../../.git/config'];assert.throws(()=>validate(malicious));
+});
+test('optional numeric suffix supports multiple same-day works and sorts 10 above 2',()=>{
+  const data=sample();
+  for(const date of ['20260529_1','20260529_2','20260529_10'])data.works.push({...data.works[0],date});
+  const result=validate(data);
+  assert.deepEqual(result.works.map(w=>w.id),['20260529_10','20260529_2','20260529_1','20260529']);
+  assert.equal(nextWorkDate('20261102',[]),'20261102');
+  assert.equal(nextWorkDate('20261102',['20261102']),'20261102_1');
+  assert.equal(nextWorkDate('20261102',['20261102','20261102_2']),'20261102_3');
+  data.works.push({...data.works[1]});assert.throws(()=>validate(data),/重複/);
 });
 test('date is the only identifier, legacy work number is discarded, newest works come first',()=>{
   const data=sample();data.works[0].id='old_identifier';data.works[0].number='002';
@@ -30,9 +41,11 @@ test('Pages build creates directly accessible work URLs, excludes manager, prese
     for(const file of ['index.html','stylesheet.css','favicon.png','portrait.jpg','works/uploads/image.png'])await writeFile(path.join(root,file),'fixture');
     await writeFile(path.join(root,'admin/secret'),'do not publish');
     await writeFile(path.join(root,'works/work/index.html'),'<title>work - moribe takehito</title><main data-work-detail></main>');
-    const result=await build({root,data:sample()});
+    const input=sample();input.works.push({...input.works[0],date:'20260529_1'});
+    const result=await build({root,data:input});
     const html=await readFile(path.join(result.out,'works/20260529/index.html'),'utf8');
     assert.match(html,/data-work-id="20260529"/);assert.match(html,/作品 &lt;&amp;&gt;/);
+    assert.match(await readFile(path.join(result.out,'works/20260529_1/index.html'),'utf8'),/data-work-id="20260529_1"/);
     assert.equal(await readFile(path.join(result.out,'CNAME'),'utf8'),'moribetakehito.com\n');
     for(const dir of ['admin','manager','.manager','.git','tools'])assert.equal(await stat(path.join(result.out,dir)).catch(()=>null),null);
     const missing=sample();missing.works[0].images=['/missing.png'];

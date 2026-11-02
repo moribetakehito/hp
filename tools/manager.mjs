@@ -67,7 +67,7 @@ export function createManager() {
         const html = (await readFile(path.join(ROOT,'manager/index.html'),'utf8')).replace('__TOKEN__',token);
         res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}); res.end(html); return;
       }
-      if (req.method === 'GET' && ['/app.js','/style.css'].includes(route)) { await serveFile(res,path.join(ROOT,'manager'),route); return; }
+      if (req.method === 'GET' && ['/app.js','/style.css','/date.js'].includes(route)) { await serveFile(res,path.join(ROOT,'manager'),route); return; }
       if (req.method === 'GET' && route === '/api/data') { send(res,200,await getData()); return; }
       if (req.method === 'GET' && route.startsWith('/preview/')) {
         if (!previewReady) { res.writeHead(404); res.end('プレビューを作成してください。'); return; }

@@ -1,3 +1,4 @@
+import { compareWorkDates, nextWorkDate } from '/date.js';
 const $ = s => document.querySelector(s);
 const token = $('meta[name="manager-token"]').content;
 let data = { works: [] }, base, selected = 0, dirty = false, locked = false;
@@ -21,7 +22,7 @@ function renderList() {
 }
 function field(key,label,placeholder='',hint='',area=false) {
   const w = data.works[selected];
-  return `<div class="field"><label for="f-${key}">${label}</label>${area?`<textarea id="f-${key}" data-field="${key}" rows="6" placeholder="${escape(placeholder)}">${escape(w[key])}</textarea>`:`<input id="f-${key}" data-field="${key}" value="${escape(w[key])}" placeholder="${escape(placeholder)}" ${key==='date'?'spellcheck="false" class="mono" inputmode="numeric" maxlength="8"':''}>`}${hint?`<p class="hint">${hint}</p>`:''}</div>`;
+  return `<div class="field"><label for="f-${key}">${label}</label>${area?`<textarea id="f-${key}" data-field="${key}" rows="6" placeholder="${escape(placeholder)}">${escape(w[key])}</textarea>`:`<input id="f-${key}" data-field="${key}" value="${escape(w[key])}" placeholder="${escape(placeholder)}" ${key==='date'?'spellcheck="false" class="mono" maxlength="15"':''}>`}${hint?`<p class="hint">${hint}</p>`:''}</div>`;
 }
 function renderImages() {
   const work = data.works[selected];
@@ -36,7 +37,7 @@ function render() {
   const w = data.works[selected];
   $('#editor-heading').textContent=w ? `作品 ${w.date || '日付未入力'} を編集`:'作品を追加';
   if(!w) { $('#editor').innerHTML='<div class="empty">「作品を追加」から最初の作品を作成できます。</div>'; return; }
-  $('#editor').innerHTML=`<div class="card"><div class="card-title"><h3>基本情報</h3><span>01 / INFORMATION</span></div>${field('date','日付 *','20261102','YYYYMMDD形式の8桁。作品IDとURLはこの日付から自動で決まります。1日につき1作品です。')}${field('title','タイトル *','作品のタイトル')}<p id="url-hint" class="hint mono"></p></div><div class="card"><div class="card-title"><h3>作品の説明</h3><span>02 / DESCRIPTION</span></div>${field('venue','会場・場所','展示会場など')}${field('subtitle','サブタイトル','展示名など')}${field('description','本文','作品の説明を入力','リンクは [表示する文字](https://example.com) と書けます。',true)}</div><div class="card"><div class="card-title"><h3>画像と並び順</h3><span>03 / IMAGES</span></div><div id="images" class="images"></div><label class="upload">＋ 画像を選んで追加<br>PNG / JPEG / WebP / GIF<input type="file" id="upload" accept="image/png,image/jpeg,image/webp,image/gif" multiple></label><p class="hint">矢印で表示順を変更できます。「削除」はこの作品からの参照を外します。元の画像ファイルは残ります。</p></div><div class="bottom-actions"><p class="hint">作品は日付の新しい順に表示します。</p><button id="remove" class="danger">作品を削除</button></div>`;
+  $('#editor').innerHTML=`<div class="card"><div class="card-title"><h3>基本情報</h3><span>01 / INFORMATION</span></div>${field('date','日付・枝番 *','20261102 または 20261102_1','同じ日付の作品には_1、_2のように枝番を付けられます。枝番なしでも登録できます。この値がそのまま作品IDとURLになります。')}${field('title','タイトル *','作品のタイトル')}<p id="url-hint" class="hint mono"></p></div><div class="card"><div class="card-title"><h3>作品の説明</h3><span>02 / DESCRIPTION</span></div>${field('venue','会場・場所','展示会場など')}${field('subtitle','サブタイトル','展示名など')}${field('description','本文','作品の説明を入力','リンクは [表示する文字](https://example.com) と書けます。',true)}</div><div class="card"><div class="card-title"><h3>画像と並び順</h3><span>03 / IMAGES</span></div><div id="images" class="images"></div><label class="upload">＋ 画像を選んで追加<br>PNG / JPEG / WebP / GIF<input type="file" id="upload" accept="image/png,image/jpeg,image/webp,image/gif" multiple></label><p class="hint">矢印で表示順を変更できます。「削除」はこの作品からの参照を外します。元の画像ファイルは残ります。</p></div><div class="bottom-actions"><p class="hint">作品は日付の新しい順に表示します。</p><button id="remove" class="danger">作品を削除</button></div>`;
   $('#url-hint').textContent=`/works/${w.id}/`;
   document.querySelectorAll('[data-field]').forEach(el=>el.oninput=()=>{w[el.dataset.field]=el.value;markDirty();if(el.dataset.field==='date'){w.id=w.date;$('#url-hint').textContent=`/works/${w.date}/`;}if(['title','date'].includes(el.dataset.field)){renderList();$('#editor-heading').textContent=`作品 ${w.date || '日付未入力'} を編集`;}});
   $('#remove').onclick=()=>{if(confirm(`「${w.title || '新しい作品'}」を一覧から削除しますか？ 元の画像は残ります。`)){data.works.splice(selected,1);selected=Math.max(0,selected-1);markDirty();render();}};
@@ -48,7 +49,7 @@ function render() {
   });
   renderImages();
 }
-$('#add').onclick=()=>{const day=new Date().toLocaleDateString('sv-SE').replaceAll('-','');if(data.works.some(w=>w.date===day)){status('今日の日付の作品がすでにあります。既存の作品を編集するか、新しい作品の日付を変更してください。',true);}data.works.unshift({id:day,date:day,title:'',venue:'',subtitle:'',description:'',images:[]});selected=0;markDirty();render();$('#f-title').focus();};
+$('#add').onclick=()=>{const day=new Date().toLocaleDateString('sv-SE').replaceAll('-','');let date;try{date=nextWorkDate(day,data.works.map(w=>w.date));}catch(e){status(e.message,true);return;}data.works.unshift({id:date,date,title:'',venue:'',subtitle:'',description:'',images:[]});selected=0;markDirty();render();$('#f-title').focus();};
 $('#draft').onclick=()=>run(async()=>{await api('draft',{data});dirty=false;status(`下書きを保存しました（${new Date().toLocaleTimeString('ja-JP')}）。サイト用ファイルは変更していません。`);});
 $('#preview').onclick=()=>run(async()=>{status('プレビューを作成しています…');await api('preview',{data});$('#preview-panel').hidden=false;$('#preview-frame').src=data.works[selected]?`/works/${encodeURIComponent(data.works[selected].id)}/?preview=${Date.now()}`:'/works/';status('プレビューを更新しました。現在編集中の内容を表示しています。');});
 $('#close-preview').onclick=()=>{$('#preview-panel').hidden=true;};
@@ -60,4 +61,4 @@ $('#cancel-publish').onclick=()=>{$('#github-token').value='';$('#publish-dialog
 $('#publish-dialog').addEventListener('cancel',()=>{$('#github-token').value='';});
 $('#confirm-publish').onclick=()=>{const credential=$('#github-token').value;$('#github-token').value='';$('#publish-dialog').close();run(async()=>{status('GitHubの最新状態を確認して送信しています…');const result=await api('publish',{data,token:credential});status(result.unchanged?'GitHubと同じ内容です。送信する変更はありません。':`GitHubに保存しました（${result.sha.slice(0,7)}）。公開処理の完了はGitHub Actionsで確認してください。`);});};
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-try{const result=await fetch('/api/data').then(r=>r.json());base=result.source;data=structuredClone(result.draft || result.source);data.works.forEach(w=>{w.id=w.date;delete w.number;delete w.url;});data.works.sort((a,b)=>b.date.localeCompare(a.date));render();status(result.draft?'保存済みの下書きを読み込みました。公開サイトへの送信は行っていません。':'GitHubから取得した作品データを読み込みました。作品を選んで編集できます。');}catch(e){status('データを読み込めませんでした。管理アプリを再起動してください。',true);}
+try{const result=await fetch('/api/data').then(r=>r.json());base=result.source;data=structuredClone(result.draft || result.source);data.works.forEach(w=>{w.id=w.date;delete w.number;delete w.url;});data.works.sort((a,b)=>compareWorkDates(a.date,b.date));render();status(result.draft?'保存済みの下書きを読み込みました。公開サイトへの送信は行っていません。':'GitHubから取得した作品データを読み込みました。作品を選んで編集できます。');}catch(e){status('データを読み込めませんでした。管理アプリを再起動してください。',true);}
