@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { access } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { ROOT } from './build.mjs';
 
@@ -8,6 +9,8 @@ export function authEnvironment() {
   const env = {...process.env};
   // Only the user's explicit CLI login may be used, never inherited API credentials.
   for (const key of ['GH_TOKEN','GITHUB_TOKEN','GH_ENTERPRISE_TOKEN','GITHUB_ENTERPRISE_TOKEN','GH_HOST']) delete env[key];
+  const gitDirectory=path.join(env.HOME || '', '.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback');
+  if (existsSync(path.join(gitDirectory,'git'))) env.PATH=`${gitDirectory}${path.delimiter}${env.PATH || ''}`;
   env.GH_PROMPT_DISABLED='1';
   return env;
 }

@@ -1,6 +1,6 @@
 # サイト管理アプリとGitHub Pagesへの移行
 
-このフォルダは `moribetakehito/hp` の管理アプリとGitHub Pages向けビルドを含みます。管理はMac上のアプリ、配信はGitHub Pagesで行います。ローカル保存やプレビューだけでは本番は変わりません。Netlifyのサービス終了は、後述のDNS・HTTPS確認後に行います。
+このフォルダは `moribetakehito/hp` の管理アプリとGitHub Pages向けビルドを含みます。管理はMac上のアプリ、配信はGitHub Pagesで行います。ローカル保存やプレビューだけでは本番は変わりません。Netlifyの有料プランは2026年11月20日にFreeへ変更する予約済みです。Netlifyプロジェクトの削除は行いません。
 
 ## 起動
 
@@ -43,9 +43,9 @@ GitHubのデータが読み込み時点から変わっていた場合は送信�
 4. GitHub Pagesの公開状態を確認します。独自ドメインを切り替える前に検証する場合は、一時的なプレビュー環境またはローカルで確認してください。サイト内はドメイン直下の絶対パスを使っているため `/hp/` 配下への公開のままではリンクが動きません。
 5. PagesのCustom domainを `moribetakehito.com` に設定し、GitHubが示すDNS設定をドメインの管理画面へ反映します。既存のメール用MX/TXTは維持します。
 6. GitHub PagesでHTTPS、トップ、about、portfolio、作品2件、画像、旧URLの転送を確認します。
-7. 切り替え確認後、Netlify側のGit連携・Identity・Git Gateway・独自ドメイン設定を停止します。
+7. Netlifyは無料プランで残せます。支払い停止のためにプロジェクトや過去のデータを削除する必要はありません。
 
-DNSとPages設定の変更、mainへのマージ、Netlify停止はこのローカルアプリから行いません。
+DNSとPages設定の変更、mainへのマージ、Netlifyの契約変更はこのローカルアプリから行いません。
 
 ## ビルドと検証
 

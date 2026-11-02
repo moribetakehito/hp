@@ -1,5 +1,9 @@
 #!/bin/zsh
 cd "${0:A:h}"
+RUNTIME_GIT_DIR="$HOME/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback"
+if [[ -x "$RUNTIME_GIT_DIR/git" ]]; then
+  export PATH="$RUNTIME_GIT_DIR:$PATH"
+fi
 if [[ -x .manager/bin/gh ]]; then
   GH_BIN="$PWD/.manager/bin/gh"
 elif command -v gh >/dev/null 2>&1; then
