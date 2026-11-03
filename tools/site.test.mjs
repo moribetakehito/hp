@@ -105,3 +105,54 @@ test('browser-auth status never returns credentials; CLI errors are sanitized',a
 test('inherited environment tokens cannot silently replace browser authentication',()=>{
   for(const name of ['GH_TOKEN','GITHUB_TOKEN','GH_ENTERPRISE_TOKEN','GITHUB_ENTERPRISE_TOKEN','GH_HOST'])assert.equal(authEnvironment()[name],undefined);
 });
+
+test('legacy migration preserves every text and image; content is authoritative in mixed order',async()=>{
+  const {normalizeData}=await import('../manager/model.js');
+  const legacy=sample();legacy.works[0].description='line one\n\nline two';
+  const next=normalizeData(legacy),w=next.works[0];
+  assert.equal(w.content[0].text,legacy.works[0].description);
+  assert.deepEqual(w.images,legacy.works[0].images);
+  w.content.push({type:'text',text:'after image',style:'heading'});
+  const result=validate(next).works[0];
+  assert.deepEqual(result.content.map(b=>b.type),['text','image','text']);
+  assert.equal(result.description,'line one\n\nline two\n\nafter image');
+  assert.deepEqual(normalizeData(next),normalizeData(normalizeData(next)));
+  w.content[1].src='/../secret';assert.throws(()=>validate(next));
+});
+test('custom tag registry preserves unused tags, merges names, and removes references',async()=>{
+  const {normalizeData,renameTag,removeTag}=await import('../manager/model.js');
+  let data=normalizeData({...sample(),tags:['  #建築  ','Architecture','未使用']});
+  data.works[0].tags=['architecture','展示','展示'];data=normalizeData(data);
+  assert.deepEqual(data.tags,['建築','Architecture','未使用','展示']);
+  assert.deepEqual(data.works[0].tags,['Architecture','展示']);
+  data=renameTag(data,'展示','建築');assert.deepEqual(data.works[0].tags,['Architecture','建築']);
+  data=removeTag(data,'建築');assert.deepEqual(data.works[0].tags,['Architecture']);
+  assert.ok(data.tags.includes('未使用'));
+  data.works[0].info=[{label:'',value:''}];assert.deepEqual(validate(data).works[0].info,[]);
+  data.works[0].info=[{label:'構造',value:''}];assert.throws(()=>validate(data),/両方/);
+});
+test('new layout cannot publish into an incompatible public renderer',async()=>{
+  const data=sample();data.works[0].images=[];data.works[0].tags=['建築'];const methods=[];
+  const request=async(url,options)=>{methods.push(options.method);let result=url.includes('git/ref/')?{object:{sha:'head'}}:url.includes('git/commits/')?{tree:{sha:'tree'}}:url.includes('work.js')?{content:Buffer.from('old renderer').toString('base64')}:{sha:'expected'};return {ok:true,json:async()=>result};};
+  await assert.rejects(publish({token:'test',data,expected:'expected',request}),/新しい作品レイアウト/);
+  assert.ok(methods.every(m=>m==='GET'));
+});
+
+test('draft accepts incomplete work, backs up legacy draft, and never changes source before apply',async()=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'moribe-draft-'));
+  const source=JSON.stringify(sample());
+  await mkdir(path.join(root,'works'),{recursive:true});await mkdir(path.join(root,'.manager'),{recursive:true});
+  await writeFile(path.join(root,'works/data.json'),source);await writeFile(path.join(root,'.manager/draft.json'),source);await writeFile(path.join(root,'.manager/sync.json'),' {"sha":"fixture"}');
+  const server=createManager({root,auth:{status:async()=>({connected:false})}});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const origin=`http://127.0.0.1:${server.address().port}`;
+  try{
+    const html=await fetch(origin).then(r=>r.text()),token=html.match(/name="manager-token" content="([^"]+)/)[1];
+    const data=sample();data.works[0].title='';data.works[0].date='';
+    const response=await fetch(origin+'/api/draft',{method:'POST',headers:{'Content-Type':'application/json','X-Manager-Token':token,Origin:origin},body:JSON.stringify({data})});
+    assert.equal(response.status,200);assert.equal(await readFile(path.join(root,'works/data.json'),'utf8'),source);
+    assert.equal(JSON.parse(await readFile(path.join(root,'.manager/draft.json'),'utf8')).version,2);
+    const {readdir}=await import('node:fs/promises');const files=await readdir(path.join(root,'.manager/backups'));
+    assert.equal(files.length,1);assert.equal(await readFile(path.join(root,'.manager/backups',files[0]),'utf8'),source);
+    const blocked=await fetch(origin+'/api/preview',{method:'POST',headers:{'Content-Type':'application/json','X-Manager-Token':token,Origin:origin},body:JSON.stringify({data})});assert.equal(blocked.status,400);
+  }finally{await new Promise(resolve=>server.close(resolve));await rm(root,{recursive:true,force:true});}
+});

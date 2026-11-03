@@ -7,3 +7,5 @@
 画像は `works/uploads/`、作品情報は `works/data.json` に保存します。既存作品の画像は従来の場所も利用します。説明文は `[文字](https://example.com)` 形式のリンクに対応します。
 
 更新は自作の管理アプリから行います。旧Decap CMS、Netlify Identity、Git Gatewayは使用しません。
+
+作品データのversion 2では、トップレベルの`tags`に使用可能なタグ一覧、各作品の`tags`に選択済みタグを保存します。`info`は`{label,value}`の配列、`content`は表示順の本文ブロックです。textブロックは`{type:"text",text,style:"body"|"heading"}`、imageブロックは`{type:"image",src,alt,caption,width:"full"|"medium"|"small",align:"left"|"center"|"right"}`です。既存データはそのまま読み込めます。description/imagesは互換用の派生値で、編集対象はcontentです。

@@ -2,12 +2,13 @@ import { readFile, writeFile, mkdir, cp, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseWorkDate, compareWorkDates } from '../manager/date.js';
+import { normalizeData } from '../manager/model.js';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export function validate(data) {
-  if (!data || !Array.isArray(data.works)) throw new Error('作品データの形式が正しくありません。');
+  data=normalizeData(data);
   const ids = new Set();
-  return { works: data.works.map((w) => {
+  return {version:2,tags:data.tags,works: data.works.map((w) => {
     if (!w || typeof w !== 'object') throw new Error('作品の形式が正しくありません。');
     parseWorkDate(w.date);
     if (ids.has(w.date)) throw new Error(`「${w.date}」の作品が重複しています。同じ日付には_1、_2のように枝番を付けてください。`);
@@ -20,6 +21,13 @@ export function validate(data) {
     if (!result.title.trim()) throw new Error(`${w.id}: タイトルを入力してください。`);
     if (!Array.isArray(w.images) || w.images.some(s => typeof s !== 'string' || !/^\/(?!\/)/.test(s) || s.includes('..') || /[<>"\\\x00-\x1f]/.test(s))) throw new Error(`${w.id}: 画像はサイト内のパスを指定してください。`);
     result.images = [...w.images];
+    result.tags=[...w.tags];
+    result.info=w.info.filter(row=>row.label.trim() || row.value.trim()).map(row=>{
+      if(!row.label.trim() || !row.value.trim())throw new Error(`${w.date}: 諸情報は項目名と値の両方を入力してください。`);
+      return {label:row.label.trim(),value:row.value.trim()};
+    });
+    if(w.content.length>500)throw new Error('本文ブロックは500件以内にしてください。');
+    result.content=w.content.map(b=>({...b}));
     // Existing optional link/asset settings must survive editing.
     for (const key of ['assetBase']) if (w[key] != null) {
       if (typeof w[key] !== 'string' || !/^\/(?!\/)/.test(w[key]) || w[key].includes('..')) throw new Error(`${w.id}: ${key}が正しくありません。`);
